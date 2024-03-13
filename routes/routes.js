@@ -7,19 +7,22 @@ const { getAllUsers } = require("../controller/user.controller");
 const { authenticateToken } = require("../middleware/auth.middleware");
 const { capturePayment, createOrder, payment } = require("../controller/razorpay");
 const noteModel = require("../models/noteModel");
+const uploadMiddleware = require("../middleware/multer");
+const multer = require("multer");
+const path = require('path');
 const router = express.Router();
+const fs = require('fs');
 
 router.post('/signup', signup);
 router.post('/login', login);
-router.post('/notes', authenticateToken, createNote);
 router.get('/notesBySeller', authenticateToken, getNoteById);
 router.get('/transactions/seller', authenticateToken, getTransactionsBySeller);
 router.get('/users', authenticateToken, getAllUsers);
 router.post('/approve-notes', approveNotes);
 router.post('/create-order', createOrder);
 router.post('/capture-payment', capturePayment)
-router.post('/completePayment',authenticateToken, payment)
-router.get('/notesboughtbyuser',authenticateToken, notesboughtbyuser)
+router.post('/completePayment', authenticateToken, payment)
+router.get('/notesboughtbyuser', authenticateToken, notesboughtbyuser)
 router.get('/notes', async (req, res) => {
   try {
     const notes = await noteModel.find(); // Retrieve all notes from the database

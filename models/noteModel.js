@@ -18,8 +18,8 @@ const noteSchema = new mongoose.Schema({
     type: String,
     required: false,
   },
-  images: {
-    type: [String],
+  imagePath: {
+    type: String,
     required: false,
   },
   seller: {

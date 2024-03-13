@@ -1,11 +1,20 @@
 // noteController.js
 const Note = require("../models/noteModel");
 const Payment = require("../models/razorpayModel");
+const multer = require('multer');
+
 
 exports.createNote = async (req, res) => {
-  console.log(req.user);
   try {
-    const { title, content, price, category, images } = req.body;
+    const { title, content, price, category } = req.body;
+    console.log(req); // Log uploaded files to check if they are present
+
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ message: 'No files were uploaded.' });
+    }
+
+    const images = req.files.map(file => file.filename);
+
     const newNote = new Note({
       title,
       content,
@@ -14,14 +23,16 @@ exports.createNote = async (req, res) => {
       images,
       seller: req.user.userId,
     });
+
     await newNote.save();
-    res
-      .status(201)
-      .json({ message: "Note created successfully", note: newNote });
+
+    res.status(201).json({ message: 'Note created successfully', note: newNote });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error('Error creating note:', error);
+    res.status(500).json({ message: 'Internal server error.' });
   }
 };
+
 
 exports.getNoteById = async (req, res) => {
   try {
