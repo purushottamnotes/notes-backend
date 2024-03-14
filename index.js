@@ -11,7 +11,7 @@ const fs = require('fs');
 const { createNote } = require("./controller/notes.controller");
 const { authenticateToken } = require("./middleware/auth.middleware");
 const noteModel = require("./models/noteModel");
-
+app.use(cors())
 // app.js
 const AWS = require('aws-sdk');
 
@@ -29,7 +29,7 @@ const upload = multer({ storage: storage });
 connectDB();
 // Middleware setup
 app.use(express.json());
-app.use(cors())
+
 // Routes setup
 app.use("/api", router);
 
