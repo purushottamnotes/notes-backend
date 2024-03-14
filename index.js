@@ -12,8 +12,7 @@ const { createNote } = require("./controller/notes.controller");
 const { authenticateToken } = require("./middleware/auth.middleware");
 const noteModel = require("./models/noteModel");
 const corsOpts = {
-  origin: '*',
-
+  origin: ['https://purushottamnotes.vercel.app/']
   methods: [
     'GET',
     'POST',
@@ -21,6 +20,7 @@ const corsOpts = {
 
   allowedHeaders: [
     'Content-Type',
+    'Authorization', // Add any other headers you need
   ],
 };
 
