@@ -7,7 +7,6 @@ const { getAllUsers } = require("../controller/user.controller");
 const { authenticateToken } = require("../middleware/auth.middleware");
 const { capturePayment, createOrder, payment } = require("../controller/razorpay");
 const noteModel = require("../models/noteModel");
-const uploadMiddleware = require("../middleware/multer");
 const multer = require("multer");
 const path = require('path');
 const router = express.Router();
