@@ -11,7 +11,20 @@ const fs = require('fs');
 const { createNote } = require("./controller/notes.controller");
 const { authenticateToken } = require("./middleware/auth.middleware");
 const noteModel = require("./models/noteModel");
-app.use(cors())
+const corsOpts = {
+  origin: '*',
+
+  methods: [
+    'GET',
+    'POST',
+  ],
+
+  allowedHeaders: [
+    'Content-Type',
+  ],
+};
+
+app.use(cors(corsOpts));
 // app.js
 const AWS = require('aws-sdk');
 
