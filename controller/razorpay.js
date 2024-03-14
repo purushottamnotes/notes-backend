@@ -1,6 +1,7 @@
 // razorpay.js
 const Razorpay = require('razorpay');
 const Payment = require('../models/razorpayModel');
+const noteModel = require('../models/noteModel');
 
 const razorpay = new Razorpay({
   key_id: 'rzp_test_YvvpgmgWRVnUlF',
@@ -39,12 +40,20 @@ exports.payment = async (req, res) => {
   // Extract user details from req.user
   try {
     // Parse the incoming data
-    const { note, paymentResponse } = req.body;
-    const { userId } = req.user
+    const { note, paymentResponse } = req.body; // Change to noteId
+    const { userId } = req.user;
+
+    // Find the note associated with the provided noteId
+    const noteBought = await noteModel.findById(note._id);
+
+    if (!note) {
+      return res.status(404).json({ error: 'Note not found' });
+    }
+
     // Create a new payment document using the Payment model
     const payment = new Payment({
       userId,
-      note,
+      note: noteBought, // Associate the note with the payment
       paymentResponse
     });
 

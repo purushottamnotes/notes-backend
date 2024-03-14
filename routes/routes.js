@@ -25,7 +25,7 @@ router.post('/completePayment', authenticateToken, payment)
 router.get('/notesboughtbyuser', authenticateToken, notesboughtbyuser)
 router.get('/notes', async (req, res) => {
   try {
-    const notes = await noteModel.find(); // Retrieve all notes from the database
+    const notes = await noteModel.find().select({ imagePath: 0 }); // Retrieve all notes from the database
     res.json(notes); // Send the notes as a JSON response
   } catch (error) {
     console.error('Error fetching notes:', error);
