@@ -22,6 +22,10 @@ const noteSchema = new mongoose.Schema({
     type: String,
     required: false,
   },
+  thumbnailPath: { // Adding thumbnail path field
+    type: String,
+    required: false,
+  },
   seller: {
     type: String,
     required: false,

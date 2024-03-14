@@ -31,21 +31,28 @@ connectDB();
 app.use(express.json());
 app.use(cors())
 // Routes setup
-app.use("/api", router);
 
-app.post('/api/notes', upload.single('images'), async (req, res) => {
+app.post('/api/notes', upload.fields([{ name: 'images', maxCount: 1 }, { name: 'thumbnail', maxCount: 1 }]), async (req, res) => {
   try {
-    const file = req.file;
+    const { images, thumbnail } = req.files;
 
     // Upload file to S3 bucket
-    const params = {
+    const imageParams = {
       Bucket: process.env.AWS_BUCKET_NAME,
-      Key: `${Date.now()}-${file.originalname}`, // Set a unique key for the file
-      Body: file.buffer, // Use file buffer as the Body
-      // ACL: 'public-read', // Set ACL to public-read if needed
+      Key: `${Date.now()}-${images[0].originalname}`, // Set a unique key for the file
+      Body: images[0].buffer, // Use file buffer as the Body
     };
 
-    const uploadedFile = await s3.upload(params).promise();
+    const uploadedImage = await s3.upload(imageParams).promise();
+
+    // Upload thumbnail to S3 bucket
+    const thumbnailParams = {
+      Bucket: process.env.AWS_BUCKET_NAME,
+      Key: `${Date.now()}-thumbnail-${thumbnail[0].originalname}`, // Set a unique key for the thumbnail
+      Body: thumbnail[0].buffer, // Use thumbnail file buffer as the Body
+    };
+
+    const uploadedThumbnail = await s3.upload(thumbnailParams).promise();
 
     // Create a new Note instance with data from the request body
     const newNote = new noteModel({
@@ -53,7 +60,8 @@ app.post('/api/notes', upload.single('images'), async (req, res) => {
       content: req.body.content,
       price: req.body.price,
       category: req.body.category,
-      imagePath: uploadedFile.Location, // Get the S3 file URL
+      imagePath: uploadedImage.Location, // Get the S3 file URL for the PDF
+      thumbnailPath: uploadedThumbnail.Location, // Get the S3 file URL for the thumbnail
     });
 
     // Save the new note to the database
@@ -65,6 +73,9 @@ app.post('/api/notes', upload.single('images'), async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
+
+app.use("/api", router);
+
 // Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

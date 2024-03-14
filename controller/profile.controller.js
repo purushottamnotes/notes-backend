@@ -3,6 +3,9 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const User = require("../models/userModel");
 
+const validator = require('validator');
+
+
 exports.signup = async (req, res) => {
   try {
     const { name, email, password, role } = req.body;
@@ -12,6 +15,20 @@ exports.signup = async (req, res) => {
       return res
         .status(400)
         .json({ message: "Name, email, and password are required." });
+    }
+
+    // Validate email
+    if (!validator.isEmail(email)) {
+      return res
+        .status(400)
+        .json({ message: "Invalid email address." });
+    }
+
+    // Validate password length
+    if (password.length < 8) {
+      return res
+        .status(400)
+        .json({ message: "Password must be at least 8 characters long." });
     }
 
     // Check if user with given email already exists
@@ -43,6 +60,7 @@ exports.signup = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
 
 exports.login = async (req, res) => {
     try {
