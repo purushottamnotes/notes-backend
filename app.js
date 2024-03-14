@@ -8,7 +8,21 @@ const cors = require('cors')
 connectDB();
 // Middleware setup
 app.use(express.json());
-app.use(cors())
+const corsOpts = {
+  origin: '*',
+
+  methods: [
+    'GET',
+    'POST',
+  ],
+
+  allowedHeaders: [
+    'Content-Type',
+  ],
+};
+
+app.use(cors(corsOpts));
+
 // Routes setup
 app.use("/api", router);
 
