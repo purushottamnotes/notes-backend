@@ -11,20 +11,7 @@ const fs = require('fs');
 const { createNote } = require("./controller/notes.controller");
 const { authenticateToken } = require("./middleware/auth.middleware");
 const noteModel = require("./models/noteModel");
-const corsOpts = {
-  origin: ['https://purushottamnotes.vercel.app/']
-  methods: [
-    'GET',
-    'POST',
-  ],
 
-  allowedHeaders: [
-    'Content-Type',
-    'Authorization', // Add any other headers you need
-  ],
-};
-
-app.use(cors(corsOpts));
 // app.js
 const AWS = require('aws-sdk');
 
@@ -42,7 +29,7 @@ const upload = multer({ storage: storage });
 connectDB();
 // Middleware setup
 app.use(express.json());
-
+app.use(cors())
 // Routes setup
 app.use("/api", router);
 
