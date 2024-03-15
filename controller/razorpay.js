@@ -2,6 +2,7 @@
 const Razorpay = require('razorpay');
 const Payment = require('../models/razorpayModel');
 const noteModel = require('../models/noteModel');
+const Rating = require('../models/ratingSchema');
 
 const razorpay = new Razorpay({
   key_id: 'rzp_test_YvvpgmgWRVnUlF',
@@ -67,3 +68,43 @@ exports.payment = async (req, res) => {
   }
 }
 
+// API to add a rating to a payment
+exports.addRating = async (req, res) => {
+  const { paymentId } = req.params;
+  const { userId, ratingValue } = req.body;
+
+  try {
+    // Find the payment and check if the user has bought the note
+    const payment = await Payment.findOne({ _id: paymentId, userId: userId });
+    console.log(paymentId, userId, req.body);
+
+    if (!payment) {
+      return res.status(404).json({ message: 'Payment not found for the user' });
+    }
+
+    // Check if the user has already added a rating for this payment
+    let rating = await Rating.findOne({ paymentId, userId });
+
+    if (!rating) {
+      // Create a new Rating document
+      rating = new Rating({
+        paymentId: payment._id,
+        userId,
+        rating: ratingValue,
+        productId: payment.note._id
+      });
+    } else {
+      // Update the existing rating
+      rating.rating = ratingValue;
+    }
+    const result = await Payment.findByIdAndUpdate(payment._id, { rating: ratingValue })
+    console.log(result)
+    // Save or update the rating
+    await rating.save();
+
+    res.status(200).json({ message: 'Rating added or updated successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server Error', error });
+  }
+}

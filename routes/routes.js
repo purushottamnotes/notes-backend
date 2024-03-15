@@ -5,9 +5,8 @@ const { signup, login } = require("../controller/profile.controller");
 const { getTransactionsBySeller } = require("../controller/trasaction.controller");
 const { getAllUsers } = require("../controller/user.controller");
 const { authenticateToken } = require("../middleware/auth.middleware");
-const { capturePayment, createOrder, payment } = require("../controller/razorpay");
+const { capturePayment, createOrder, payment, addRating } = require("../controller/razorpay");
 const noteModel = require("../models/noteModel");
-const uploadMiddleware = require("../middleware/multer");
 const multer = require("multer");
 const path = require('path');
 const router = express.Router();
@@ -23,6 +22,7 @@ router.post('/create-order', createOrder);
 router.post('/capture-payment', capturePayment)
 router.post('/completePayment', authenticateToken, payment)
 router.get('/notesboughtbyuser', authenticateToken, notesboughtbyuser)
+router.post('/payment/:paymentId/rating', authenticateToken, addRating)
 router.get('/notes', getNotes);
 
 module.exports = router;

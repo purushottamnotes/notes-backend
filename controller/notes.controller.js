@@ -118,6 +118,7 @@ const noteModel = require("../models/noteModel");
 // Configure AWS
 const { PDFDocument } = require('pdf-lib');
 const { URL } = require('url'); // Import the URL module
+const Rating = require("../models/ratingSchema");
 
 AWS.config.update({
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
@@ -127,20 +128,35 @@ AWS.config.update({
 
 const s3 = new AWS.S3();
 
+
 exports.getNotes = async (req, res) => {
   try {
     const notes = await noteModel.find().select({ imagePath: 0 });
-    
-    res.json(notes);
+
+    // Map through each note and calculate the average rating
+    const notesWithRating = await Promise.all(
+      notes.map(async (note) => {
+        const ratings = await Rating.find({ productId: note._id });
+
+        // Calculate the average rating
+        let totalRating = 0;
+        if (ratings.length > 0) {
+          totalRating = ratings.reduce((sum, rating) => sum + rating.rating, 0) / ratings.length;
+        }
+
+        // Scale the average rating to be out of 5
+        const averageRatingOutOf5 = (totalRating / 5) * 5;
+
+        return {
+          ...note.toObject(),
+          averageRatingOutOf5,
+        };
+      })
+    );
+      
+    res.json(notesWithRating);
   } catch (error) {
     console.error('Error fetching notes:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 };
-
-// Function to extract key from URL
-function extractKeyFromUrl(url) {
-  const parsedUrl = new URL(url);
-  const pathSegments = parsedUrl.pathname.split('/');
-  return pathSegments[pathSegments.length - 1];
-}
